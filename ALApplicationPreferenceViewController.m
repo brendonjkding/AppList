@@ -397,7 +397,7 @@ static UIEdgeInsets EdgeInsetsForViewController(UIViewController *vc)
 	return [validTitles objectAtIndex:index];
 }
 
-- (void)pushController:(id<PSBaseView>)controller
+- (void)pushController:(id)controller
 {
 	[super pushController:controller];
 	[controller setParentController:self];

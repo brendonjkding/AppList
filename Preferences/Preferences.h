@@ -1,7 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@interface PSSpecifier : NSObject
-@property (nonatomic, copy) NSString *name;
+@interface PSSpecifier ()
 - (id)propertyForKey:(NSString *)key;
 @end
 
@@ -9,16 +8,14 @@
 - (void)setParentController:(id)parentController;
 @end
 
-@interface PSViewController : UIViewController <PSBaseView>
+@interface PSViewController ()
 - (instancetype)initForContentSize:(CGSize)contentSize;
-@property (nonatomic, copy) PSSpecifier *specifier;
-- (void)pushController:(id<PSBaseView>)controller;
 @end
 
 @interface PSViewController (Legacy)
 - (void)viewWillBecomeVisible:(void *)source;
 @end
 
-@interface PSListController : PSViewController
+@interface PSListController ()
 - (PSSpecifier *)specifierForID:(NSString *)identifier;
 @end
