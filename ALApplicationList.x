@@ -11,6 +11,8 @@
 
 #import "SpringBoard.h"
 
+
+
 @interface UIImage (Private)
 + (UIImage *)_applicationIconImageForBundleIdentifier:(NSString *)bundleIdentifier format:(int)format scale:(CGFloat)scale;
 + (UIImage *)_applicationIconImageForBundleIdentifier:(NSString *)bundleIdentifier roleIdentifier:(NSString *)roleIdentifier format:(int)format scale:(CGFloat)scale;
@@ -280,7 +282,18 @@ skip:
 }
 
 @end
-
+SBIconModel* sbIconModel;
+%hook SBIconModel
++(instancetype)alloc{
+	id ret=%orig;
+	sbIconModel=ret;
+	return ret;
+}
+%new
++(instancetype) sharedInstance{
+	return sbIconModel;
+}
+%end
 @implementation ALApplicationListImpl
 
 static void processMessage(SInt32 messageId, mach_port_t replyPort, CFDataRef data)
@@ -600,7 +613,11 @@ static SBIconModel *homescreenIconModel(void)
 	SBApplication *app = applicationWithDisplayIdentifier(displayIdentifier);
 	UIImage *image;
 	if (iconSize <= ALApplicationIconSizeSmall) {
-		image = getIconImage ? [icon getIconImage:0] : [icon smallIcon];
+		if([icon respondsToSelector:@selector(iconImageWithInfo:)]){
+			SBIconImageInfo info={{iconSize,iconSize},[[UIScreen mainScreen] scale],iconSize*0.2};
+			image=[icon iconImageWithInfo:info];
+		}
+		else		image = getIconImage ? [icon getIconImage:0] : [icon smallIcon];
 		if (image)
 			goto finish;
 		if ([app respondsToSelector:@selector(pathForSmallIcon)]) {
@@ -746,5 +763,6 @@ static BOOL cloned;
 		}
 		sharedApplicationList = [[ALApplicationListImpl alloc] init];
 	}
+	%init(_ungrouped)
 	[pool drain];
 }

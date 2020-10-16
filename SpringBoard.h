@@ -1,9 +1,15 @@
 #import <Foundation/Foundation.h>
 
+typedef struct SBIconImageInfo {
+	CGSize size;
+	double scale;
+	double continuousCornerRadius;
+} SBIconImageInfo;
 @interface SBIcon : NSObject
 - (UIImage *)getIconImage:(NSInteger)format;
 - (UIImage *)icon;
 - (UIImage *)smallIcon;
+- (UIImage *)iconImageWithInfo:(SBIconImageInfo)arg1;
 @end
 
 @interface SBApplicationIcon : SBIcon
