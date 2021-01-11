@@ -5,7 +5,7 @@
 
 #import "prefs.h"
 
-#import <Preferences/Preferences.h>
+#import "Preferences/Preferences.h"
 #import <CaptainHook/CaptainHook.h>
 #import <CoreFoundation/CoreFoundation.h>
 #include <notify.h>
