@@ -69,36 +69,17 @@ stage::
 	mkdir -p $(THEOS_STAGING_DIR)/usr/include/AppList
 	$(ECHO_NOTHING)rsync -a ./public/* $(THEOS_STAGING_DIR)/usr/include/AppList $(FW_RSYNC_EXCLUDES)$(ECHO_END)
 
-setup:: all
-	#tweak
-	@rm -f /opt/simject/$(TWEAK_NAME).dylib
-	@cp -v $(THEOS_OBJ_DIR)/$(LIBRARY_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
-	@codesign -f -s - /opt/simject/$(TWEAK_NAME).dylib
-	@cp -v $(PWD)/layout/Library/MobileSubstrate/DynamicLibraries/$(TWEAK_NAME).plist /opt/simject
+ifdef SIMULATOR
+after-stage::
+	@rm $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/AppList.dylib
+	@cp $(THEOS_STAGING_DIR)/usr/lib/libapplist.dylib $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/AppList.dylib
+endif
 
+setup::
 	#lib
-	@[ -d $(PL_SIMULATOR_ROOT)/usr/lib ] || sudo mkdir -p $(PL_SIMULATOR_ROOT)/usr/lib
-	@sudo rm -f $(PL_SIMULATOR_ROOT)/usr/lib/$(LIBRARY_NAME).dylib
-	@sudo cp -v $(THEOS_OBJ_DIR)/$(LIBRARY_NAME).dylib $(PL_SIMULATOR_ROOT)/usr/lib
-	@sudo codesign -f -s -  $(PL_SIMULATOR_ROOT)/usr/lib/$(LIBRARY_NAME).dylib
-	@[ -f /usr/lib/$(LIBRARY_NAME).dylib ] || sudo ln -s $(PL_SIMULATOR_ROOT)/usr/lib/$(LIBRARY_NAME).dylib /usr/lib/$(LIBRARY_NAME).dylib || true
-	@[ -f /usr/lib/$(LIBRARY_NAME).dylib ] || echo -e "\x1b[1;35m>> warning: create symlink in /usr/lib yourself if needed\x1b[m" || true
-
-	#bundle
-	@sudo rm -rf $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle
-	@sudo cp -vR $(THEOS_OBJ_DIR)/$(BUNDLE_NAME).bundle $(PL_SIMULATOR_BUNDLES_PATH)
-	@sudo codesign -f -s - $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle/$(BUNDLE_NAME)
-	@sudo cp $(PWD)/layout/System/Library/PreferenceBundles/AppList.bundle/Info.plist $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle/Info.plist
-
-	@resim
+	@[ -f /usr/lib/$(LIBRARY_NAME).dylib ] || sudo ln -s $(PL_SIMJECT_ROOT)/usr/lib/$(LIBRARY_NAME).dylib /usr/lib/$(LIBRARY_NAME).dylib || true
+	@[ -f /usr/lib/$(LIBRARY_NAME).dylib ] || echo -e "\x1b[1;35m>> warning: create symlink in /usr/lib yourself\x1b[m" || true
 
 remove::
-	#tweak
-	@rm -f /opt/simject/$(TWEAK_NAME).dylib /opt/simject/$(TWEAK_NAME).plist
 	#lib
-	@sudo rm -f $(PL_SIMULATOR_ROOT)/usr/lib/$(LIBRARY_NAME).dylib
 	@sudo rm -f /usr/lib/$(LIBRARY_NAME).dylib
-	#bundle
-	@sudo rm -rf $(PL_SIMULATOR_BUNDLES_PATH)/$(BUNDLE_NAME).bundle
-
-	@resim
